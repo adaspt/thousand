@@ -3,7 +3,26 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-System.register("model/game-player", [], function(exports_1) {
+System.register("model/game-current-turn", [], function(exports_1) {
+    "use strict";
+    var GameCurrentTurn;
+    return {
+        setters:[],
+        execute: function() {
+            GameCurrentTurn = (function () {
+                function GameCurrentTurn(playerCount) {
+                    this.scores = [];
+                    for (var i = 0; i < playerCount; i++) {
+                        this.scores.push(null);
+                    }
+                }
+                return GameCurrentTurn;
+            }());
+            exports_1("GameCurrentTurn", GameCurrentTurn);
+        }
+    }
+});
+System.register("model/game-player", [], function(exports_2) {
     "use strict";
     var GamePlayer;
     return {
@@ -15,11 +34,11 @@ System.register("model/game-player", [], function(exports_1) {
                 }
                 return GamePlayer;
             }());
-            exports_1("GamePlayer", GamePlayer);
+            exports_2("GamePlayer", GamePlayer);
         }
     }
 });
-System.register("model/game-state", [], function(exports_2) {
+System.register("model/game-state", [], function(exports_3) {
     "use strict";
     var GameState;
     return {
@@ -29,11 +48,11 @@ System.register("model/game-state", [], function(exports_2) {
                 GameState[GameState["Players"] = 1] = "Players";
                 GameState[GameState["Game"] = 2] = "Game";
             })(GameState || (GameState = {}));
-            exports_2("GameState", GameState);
+            exports_3("GameState", GameState);
         }
     }
 });
-System.register("model/game-turn", [], function(exports_3) {
+System.register("model/game-turn", [], function(exports_4) {
     "use strict";
     var GameTurn;
     return {
@@ -44,13 +63,13 @@ System.register("model/game-turn", [], function(exports_3) {
                 }
                 return GameTurn;
             }());
-            exports_3("GameTurn", GameTurn);
+            exports_4("GameTurn", GameTurn);
         }
     }
 });
-System.register("model/game", ["model/game-state", "model/game-player", "model/game-turn"], function(exports_4) {
+System.register("model/game", ["model/game-state", "model/game-player", "model/game-turn", "model/game-current-turn"], function(exports_5) {
     "use strict";
-    var game_state_1, game_player_1, game_turn_1;
+    var game_state_1, game_player_1, game_turn_1, game_current_turn_1;
     var Game;
     return {
         setters:[
@@ -62,6 +81,9 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
             },
             function (game_turn_1_1) {
                 game_turn_1 = game_turn_1_1;
+            },
+            function (game_current_turn_1_1) {
+                game_current_turn_1 = game_current_turn_1_1;
             }],
         execute: function() {
             Game = (function () {
@@ -70,7 +92,6 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     this.state = game_state_1.GameState.Players;
                     this.players = [];
                     this.turns = [];
-                    this.current = new game_turn_1.GameTurn();
                 }
                 Game.prototype.setPlayer = function (index, name) {
                     var players = [
@@ -93,15 +114,41 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                 };
                 Game.prototype.play = function () {
                     this.state = game_state_1.GameState.Game;
+                    this.current = new game_current_turn_1.GameCurrentTurn(this.players.length);
+                    this.render();
+                };
+                Game.prototype.next = function (scores) {
+                    if (scores.every(function (value) { return value == null; })) {
+                        return;
+                    }
+                    var currentScores = this.turns.length > 0 ? this.turns[this.turns.length - 1].totals : [0, 0, 0, 0];
+                    var turn = new game_turn_1.GameTurn();
+                    turn.scores = scores;
+                    turn.totals = scores.map(function (value, index) { return value + currentScores[index]; });
+                    this.turns.push(turn);
+                    this.current = new game_current_turn_1.GameCurrentTurn(this.players.length);
+                    this.render();
+                };
+                Game.prototype.undo = function () {
+                    if (this.turns.length === 0) {
+                        return;
+                    }
+                    var lastTurn = this.turns.pop();
+                    var current = new game_current_turn_1.GameCurrentTurn(this.players.length);
+                    current.dropped = lastTurn.dropped;
+                    for (var i = 0; i < this.players.length; i++) {
+                        current.scores[i] = lastTurn.scores[i];
+                    }
+                    this.current = current;
                     this.render();
                 };
                 return Game;
             }());
-            exports_4("Game", Game);
+            exports_5("Game", Game);
         }
     }
 });
-System.register("components/player", ['react', "main"], function(exports_5) {
+System.register("components/player", ['react', "main"], function(exports_6) {
     "use strict";
     var React, main_1;
     var Player;
@@ -126,16 +173,17 @@ System.register("components/player", ['react', "main"], function(exports_5) {
                 Player.prototype.render = function () {
                     var placeholder = this.props.placeholder;
                     var name = this.props.player != null ? this.props.player.name : '';
+                    var required = this.props.index < 3;
                     var autofocus = this.props.index === 0;
-                    return (React.createElement("div", {className: "form-group"}, React.createElement("input", {className: "form-control", placeholder: placeholder, value: name, autoFocus: autofocus, onChange: this.handleNameChange})));
+                    return (React.createElement("div", {className: "form-group"}, React.createElement("input", {className: "form-control", placeholder: placeholder, value: name, required: required, autoFocus: autofocus, onChange: this.handleNameChange})));
                 };
                 return Player;
             }(React.Component));
-            exports_5("Player", Player);
+            exports_6("Player", Player);
         }
     }
 });
-System.register("components/player-list", ['react', "main", "components/player"], function(exports_6) {
+System.register("components/player-list", ['react', "main", "components/player"], function(exports_7) {
     "use strict";
     var React, main_2, player_1;
     var PlayerList;
@@ -169,55 +217,227 @@ System.register("components/player-list", ['react', "main", "components/player"]
                 };
                 return PlayerList;
             }(React.Component));
-            exports_6("PlayerList", PlayerList);
+            exports_7("PlayerList", PlayerList);
         }
     }
 });
-System.register("components/app", ['react', "model/game-state", "components/player-list"], function(exports_7) {
+System.register("components/turn", ['react'], function(exports_8) {
     "use strict";
-    var React, game_state_2, player_list_1;
-    var App;
+    var React;
+    var Turn;
     return {
         setters:[
             function (React_3) {
                 React = React_3;
+            }],
+        execute: function() {
+            Turn = (function (_super) {
+                __extends(Turn, _super);
+                function Turn() {
+                    _super.apply(this, arguments);
+                }
+                Turn.prototype.render = function () {
+                    var scores = this.props.totals.map(function (score, index) { return (React.createElement("td", {key: index, className: "text-center"}, score)); });
+                    return (React.createElement("tr", null, scores));
+                };
+                return Turn;
+            }(React.Component));
+            exports_8("Turn", Turn);
+        }
+    }
+});
+System.register("components/current-turn", ['react', "main"], function(exports_9) {
+    "use strict";
+    var React, main_3;
+    var CurrentTurn;
+    return {
+        setters:[
+            function (React_4) {
+                React = React_4;
+            },
+            function (main_3_1) {
+                main_3 = main_3_1;
+            }],
+        execute: function() {
+            CurrentTurn = (function (_super) {
+                __extends(CurrentTurn, _super);
+                function CurrentTurn(props) {
+                    var _this = this;
+                    _super.call(this, props);
+                    this.handleScoreChange = function (e, index) {
+                        var scores = _this.state.scores.slice();
+                        scores[index] = e.target.value;
+                        _this.setState({ scores: scores });
+                    };
+                    this.handleSubmit = function (e) {
+                        e.preventDefault();
+                        var scores = _this.state.scores
+                            .map(function (value) { return parseInt(value, 10); })
+                            .map(function (value) { return isNaN(value) ? null : value; });
+                        main_3.model.next(scores);
+                    };
+                    this.handleUndo = function (e) {
+                        main_3.model.undo();
+                    };
+                    this.state = {
+                        scores: []
+                    };
+                    for (var _i = 0, _a = this.props.scores; _i < _a.length; _i++) {
+                        var score = _a[_i];
+                        this.state.scores.push(String(score));
+                    }
+                }
+                CurrentTurn.prototype.componentWillReceiveProps = function (nextProps) {
+                    var scores = [];
+                    for (var _i = 0, _a = nextProps.scores; _i < _a.length; _i++) {
+                        var score = _a[_i];
+                        scores.push(String(score));
+                    }
+                    this.setState({ scores: scores });
+                };
+                CurrentTurn.prototype.render = function () {
+                    var scores = this.renderScores();
+                    return (React.createElement("tfoot", null, React.createElement("tr", null, React.createElement("td", {colSpan: 4}, React.createElement("form", {onSubmit: this.handleSubmit}, scores, React.createElement("div", {className: "form-group"}, React.createElement("button", {type: "submit", className: "btn btn-primary"}, "Next"), ' ', React.createElement("button", {type: "button", className: "btn btn-default", onClick: this.handleUndo}, "Undo")))))));
+                };
+                CurrentTurn.prototype.renderScores = function () {
+                    var _this = this;
+                    var colClassNames = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
+                    var players = this.props.players;
+                    var inputs = this.state.scores.map(function (score, index) {
+                        var autofocus = index === 0;
+                        return (React.createElement("div", {key: index, className: colClassNames}, React.createElement("div", {className: "form-group"}, React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "0", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }}))));
+                    });
+                    return (React.createElement("div", {className: "row"}, inputs));
+                };
+                return CurrentTurn;
+            }(React.Component));
+            exports_9("CurrentTurn", CurrentTurn);
+        }
+    }
+});
+System.register("components/turn-list", ['react', "components/turn", "components/current-turn"], function(exports_10) {
+    "use strict";
+    var React, turn_1, current_turn_1;
+    var TurnList;
+    return {
+        setters:[
+            function (React_5) {
+                React = React_5;
+            },
+            function (turn_1_1) {
+                turn_1 = turn_1_1;
+            },
+            function (current_turn_1_1) {
+                current_turn_1 = current_turn_1_1;
+            }],
+        execute: function() {
+            TurnList = (function (_super) {
+                __extends(TurnList, _super);
+                function TurnList() {
+                    _super.apply(this, arguments);
+                }
+                TurnList.prototype.render = function () {
+                    var players = this.renderPlayers();
+                    var turns = this.renderTurns();
+                    return (React.createElement("table", {className: "table"}, players, turns, React.createElement(current_turn_1.CurrentTurn, {players: this.props.players, scores: this.props.current.scores})));
+                };
+                TurnList.prototype.renderPlayers = function () {
+                    var colClassNames = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
+                    colClassNames += ' text-center';
+                    var players = this.props.players.map(function (player, index) { return (React.createElement("th", {key: index, className: colClassNames}, player.name)); });
+                    return (React.createElement("thead", null, React.createElement("tr", null, players)));
+                };
+                TurnList.prototype.renderTurns = function () {
+                    var turns = this.props.turns.map(function (turn, index) { return (React.createElement(turn_1.Turn, {key: index, totals: turn.totals})); });
+                    return (React.createElement("tbody", null, turns));
+                };
+                return TurnList;
+            }(React.Component));
+            exports_10("TurnList", TurnList);
+        }
+    }
+});
+System.register("components/game", ['react', "components/turn-list"], function(exports_11) {
+    "use strict";
+    var React, turn_list_1;
+    var Game;
+    return {
+        setters:[
+            function (React_6) {
+                React = React_6;
+            },
+            function (turn_list_1_1) {
+                turn_list_1 = turn_list_1_1;
+            }],
+        execute: function() {
+            Game = (function (_super) {
+                __extends(Game, _super);
+                function Game() {
+                    _super.apply(this, arguments);
+                }
+                Game.prototype.render = function () {
+                    var players = this.props.players;
+                    var turns = this.props.turns;
+                    var current = this.props.current;
+                    return (React.createElement("div", null, React.createElement("h1", null, "Thousand ", React.createElement("small", null, "Play")), React.createElement(turn_list_1.TurnList, {players: players, turns: turns, current: current})));
+                };
+                return Game;
+            }(React.Component));
+            exports_11("Game", Game);
+        }
+    }
+});
+System.register("components/app", ['react', "model/game-state", "components/player-list", "components/game"], function(exports_12) {
+    "use strict";
+    var React, game_state_2, player_list_1, game_1;
+    var App;
+    return {
+        setters:[
+            function (React_7) {
+                React = React_7;
             },
             function (game_state_2_1) {
                 game_state_2 = game_state_2_1;
             },
             function (player_list_1_1) {
                 player_list_1 = player_list_1_1;
+            },
+            function (game_1_1) {
+                game_1 = game_1_1;
             }],
         execute: function() {
             App = (function (_super) {
                 __extends(App, _super);
-                function App(props) {
-                    _super.call(this, props);
+                function App() {
+                    _super.apply(this, arguments);
                 }
                 App.prototype.render = function () {
+                    var players = this.props.model.players;
+                    var turns = this.props.model.turns;
+                    var current = this.props.model.current;
                     if (this.props.model.state === game_state_2.GameState.Players) {
-                        return React.createElement(player_list_1.PlayerList, {players: this.props.model.players});
+                        return React.createElement(player_list_1.PlayerList, {players: players});
                     }
-                    return (React.createElement("h1", null, "Thousand ", React.createElement("small", null, "Play")));
+                    return (React.createElement(game_1.Game, {players: players, turns: turns, current: current}));
                 };
                 return App;
             }(React.Component));
-            exports_7("App", App);
+            exports_12("App", App);
         }
     }
 });
 /// <reference path="../typings/main.d.ts" />
-System.register("main", ['react', 'react-dom', "components/app", "model/game"], function(exports_8) {
+System.register("main", ['react', 'react-dom', "components/app", "model/game"], function(exports_13) {
     "use strict";
-    var React, ReactDOM, app_1, game_1;
+    var React, ReactDOM, app_1, game_2;
     var model;
     function render() {
         ReactDOM.render(React.createElement(app_1.App, {model: model}), document.getElementById('app'));
     }
     return {
         setters:[
-            function (React_4) {
-                React = React_4;
+            function (React_8) {
+                React = React_8;
             },
             function (ReactDOM_1) {
                 ReactDOM = ReactDOM_1;
@@ -225,11 +445,11 @@ System.register("main", ['react', 'react-dom', "components/app", "model/game"], 
             function (app_1_1) {
                 app_1 = app_1_1;
             },
-            function (game_1_1) {
-                game_1 = game_1_1;
+            function (game_2_1) {
+                game_2 = game_2_1;
             }],
         execute: function() {
-            exports_8("model", model = new game_1.Game(render));
+            exports_13("model", model = new game_2.Game(render));
             render();
         }
     }
