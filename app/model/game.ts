@@ -40,6 +40,11 @@ export class Game {
     
     clear() {
         this.state = GameState.Players;
+        for (let player of this.players) {
+            player.canDrop = true;
+            player.isRestricted = false;
+        }
+        
         this.turns = [];
         this.current = null;
         
@@ -72,6 +77,11 @@ export class Game {
             this.players[dropped].canDrop = false;
         }
         
+        for (let i = 0; i < this.players.length; i++) {
+            let score = turn.totals[i];
+            this.players[i].isRestricted = score >= 900;
+        }
+        
         this.save();
         this.render();
     }
@@ -90,6 +100,7 @@ export class Game {
         
         for (let i = 0; i < this.players.length; i++) {
             current.scores[i] = lastTurn.scores[i];
+            this.players[i].isRestricted = lastTurn.totals[i] >= 900;
         }
         
         this.current = current;

@@ -48,7 +48,7 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         let dropped: number = e.target.checked ? index : null;
         
         for (let i = 0; i < this.props.players.length; i++) {
-            if (dropped === null || dropped === i) {
+            if (dropped === null || dropped === i || this.props.players[i].isRestricted) {
                 scores.push(null);
             } else {
                 scores.push(String(120 / (this.props.players.length - 1)));
@@ -105,17 +105,22 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         let inputs = this.state.scores.map((score, index) => {
             let autofocus = index === 0;
             let checked = this.state.dropped === index;
-            let disabled = !this.props.players[index].canDrop;
+            let disabled = !players[index].canDrop;
+            let cssGroupClassNames = 'form-group';
+            if (players[index].isRestricted) {
+                cssGroupClassNames += ' has-error';
+            }
+            
             return (
                 <div key={index} className={colClassNames}>
-                    <div className="form-group">
+                    <div className={cssGroupClassNames}>
                         <div className="input-group">
-                            <input type="number" className="form-control text-right" placeholder={players[index].name}
-                                min="0" max="1000" step="10" value={score} autoFocus={autofocus}
-                                onChange={(e) => this.handleScoreChange(e, index)} />
                             <span className="input-group-addon">
                                 <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => this.handleDropped(e, index)} />
                             </span>
+                            <input type="number" className="form-control text-right" placeholder={players[index].name}
+                                min="0" max="1000" step="10" value={score} autoFocus={autofocus}
+                                onChange={(e) => this.handleScoreChange(e, index)} />
                         </div>
                     </div>
                 </div>
