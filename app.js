@@ -26,6 +26,7 @@ System.register("model/game-player", [], function(exports_2) {
             GamePlayer = (function () {
                 function GamePlayer() {
                     this.canDrop = true;
+                    this.isRestricted = false;
                 }
                 return GamePlayer;
             }());
@@ -114,6 +115,11 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                 };
                 Game.prototype.clear = function () {
                     this.state = game_state_1.GameState.Players;
+                    for (var _i = 0, _a = this.players; _i < _a.length; _i++) {
+                        var player = _a[_i];
+                        player.canDrop = true;
+                        player.isRestricted = false;
+                    }
                     this.turns = [];
                     this.current = null;
                     this.save();
@@ -139,6 +145,10 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     if (dropped != null) {
                         this.players[dropped].canDrop = false;
                     }
+                    for (var i = 0; i < this.players.length; i++) {
+                        var score = turn.totals[i];
+                        this.players[i].isRestricted = score >= 900;
+                    }
                     this.save();
                     this.render();
                 };
@@ -154,6 +164,7 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     }
                     for (var i = 0; i < this.players.length; i++) {
                         current.scores[i] = lastTurn.scores[i];
+                        this.players[i].isRestricted = lastTurn.totals[i] >= 900;
                     }
                     this.current = current;
                     this.save();
@@ -335,7 +346,7 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                         var scores = [];
                         var dropped = e.target.checked ? index : null;
                         for (var i = 0; i < _this.props.players.length; i++) {
-                            if (dropped === null || dropped === i) {
+                            if (dropped === null || dropped === i || _this.props.players[i].isRestricted) {
                                 scores.push(null);
                             }
                             else {
@@ -386,8 +397,12 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                     var inputs = this.state.scores.map(function (score, index) {
                         var autofocus = index === 0;
                         var checked = _this.state.dropped === index;
-                        var disabled = !_this.props.players[index].canDrop;
-                        return (React.createElement("div", {key: index, className: colClassNames}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "input-group"}, React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "0", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }}), React.createElement("span", {className: "input-group-addon"}, React.createElement("input", {type: "checkbox", checked: checked, disabled: disabled, onChange: function (e) { return _this.handleDropped(e, index); }}))))));
+                        var disabled = !players[index].canDrop;
+                        var cssGroupClassNames = 'form-group';
+                        if (players[index].isRestricted) {
+                            cssGroupClassNames += ' has-error';
+                        }
+                        return (React.createElement("div", {key: index, className: colClassNames}, React.createElement("div", {className: cssGroupClassNames}, React.createElement("div", {className: "input-group"}, React.createElement("span", {className: "input-group-addon"}, React.createElement("input", {type: "checkbox", checked: checked, disabled: disabled, onChange: function (e) { return _this.handleDropped(e, index); }})), React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "0", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }})))));
                     });
                     return (React.createElement("div", {className: "row"}, inputs));
                 };
