@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Thousand</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.20/system.js"></script>
+    </head>
+    <body>
+        <div id="app" class="container"></div>
+        <script>
+            System.config({
+                baseURL: '/',
+                map: {
+                    'main': 'app.js',
+                    'react': '//cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',
+                    'react-dom': '//cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js'
+                },
+                meta: {
+                    'main': { format: 'register' }
+                }
+            });
+            System.import('main');
+        </script>
+    </body>
+</html>

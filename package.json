@@ -1,0 +1,27 @@
+{
+  "name": "thousand",
+  "version": "1.0.0",
+  "description": "Thousand game score calculator",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm run build",
+    "build": "",
+    "tsc": "tsc -w --pretty",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm build/*.*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adaspt/thousand.git"
+  },
+  "author": "Adas Petrovas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adaspt/thousand/issues"
+  },
+  "homepage": "https://github.com/adaspt/thousand#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}

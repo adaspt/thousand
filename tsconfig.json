@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "system",
+        "sourceMap": true,
+        "jsx": "react",
+        "outFile": "public/app.js",
+        "noEmitOnError": true
+    },
+    "exclude": [
+        "node_modules",
+        "typings"
+    ]
+}
