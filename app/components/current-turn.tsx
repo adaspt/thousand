@@ -5,10 +5,12 @@ import {game} from '../main';
 interface ICurrentTurnProps {
     players: model.GamePlayer[];
     scores: number[];
+    dropped: number;
 }
 
 interface ICurrentTurnState {
-    scores: string[];
+    scores?: string[];
+    dropped?: number;
 }
 
 export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurnState> {
@@ -16,7 +18,8 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         super(props);
         
         this.state = {
-            scores: []
+            scores: [],
+            dropped: this.props.dropped
         };
         
         for (let score of this.props.scores) {
@@ -25,12 +28,13 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
     }
     
     componentWillReceiveProps(nextProps) {
+        let dropped: number = nextProps.dropped || null;
         let scores: string[] = [];
         for (let score of nextProps.scores) {
             scores.push(String(score));
         }
         
-        this.setState({ scores: scores });
+        this.setState({ scores: scores, dropped: dropped });
     }
     
     handleScoreChange = (e, index) => {
@@ -39,13 +43,28 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         this.setState({ scores: scores });
     }
     
+    handleDropped = (e, index) => {
+        let scores: string[] = [];
+        let dropped: number = e.target.checked ? index : null;
+        
+        for (let i = 0; i < this.props.players.length; i++) {
+            if (dropped === null || dropped === i) {
+                scores.push(null);
+            } else {
+                scores.push(String(120 / (this.props.players.length - 1)));
+            }
+        }
+        
+        this.setState({ scores: scores, dropped: dropped });
+    }
+    
     handleSubmit = (e) => {
         e.preventDefault();
         
         let scores = this.state.scores
             .map((value) => parseInt(value, 10))
             .map((value) => isNaN(value) ? null : value); 
-        game.next(scores);
+        game.next(scores, this.state.dropped);
     }
     
     handleUndo = (e) => {
@@ -85,12 +104,19 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         
         let inputs = this.state.scores.map((score, index) => {
             let autofocus = index === 0;
+            let checked = this.state.dropped === index;
+            let disabled = !this.props.players[index].canDrop;
             return (
                 <div key={index} className={colClassNames}>
                     <div className="form-group">
-                        <input type="number" className="form-control text-right" placeholder={players[index].name}
-                            min="0" max="1000" step="10" value={score} autoFocus={autofocus}
-                            onChange={(e) => this.handleScoreChange(e, index)} />
+                        <div className="input-group">
+                            <input type="number" className="form-control text-right" placeholder={players[index].name}
+                                min="0" max="1000" step="10" value={score} autoFocus={autofocus}
+                                onChange={(e) => this.handleScoreChange(e, index)} />
+                            <span className="input-group-addon">
+                                <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => this.handleDropped(e, index)} />
+                            </span>
+                        </div>
                     </div>
                 </div>
             );

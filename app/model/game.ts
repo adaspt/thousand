@@ -55,7 +55,7 @@ export class Game {
         this.render();
     }
     
-    next(scores: number[]) {
+    next(scores: number[], dropped: number) {
         if (scores.every((value) => value == null)) {
             return;
         }
@@ -64,8 +64,13 @@ export class Game {
         let turn = new GameTurn();
         turn.scores = scores;
         turn.totals = scores.map((value, index) => value + currentScores[index]);
+        turn.dropped = dropped;
         this.turns.push(turn);
         this.current = new GameCurrentTurn(this.players.length);
+        
+        if (dropped != null) {
+            this.players[dropped].canDrop = false;
+        }
         
         this.save();
         this.render();
@@ -79,6 +84,10 @@ export class Game {
         let lastTurn = this.turns.pop();
         let current = new GameCurrentTurn(this.players.length);
         current.dropped = lastTurn.dropped;
+        if (lastTurn.dropped != null) {
+            this.players[lastTurn.dropped].canDrop = true;
+        }
+        
         for (let i = 0; i < this.players.length; i++) {
             current.scores[i] = lastTurn.scores[i];
         }

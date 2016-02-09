@@ -22,7 +22,7 @@ export class TurnList extends React.Component<ITurnListProps, ITurnListState> {
             <table className="table">
                 {players}
                 {turns}
-                <CurrentTurn players={this.props.players} scores={this.props.current.scores} />
+                <CurrentTurn players={this.props.players} scores={this.props.current.scores} dropped={this.props.current.dropped} />
             </table>
         );
     }
@@ -31,9 +31,12 @@ export class TurnList extends React.Component<ITurnListProps, ITurnListState> {
         let colClassNames = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
         colClassNames += ' text-center';
         
-        let players = this.props.players.map((player, index) => (
-            <th key={index} className={colClassNames}>{player.name}</th>
-        ));
+        let players = this.props.players.map((player, index) => {
+            let dropMark = player.canDrop ? '' : ' *';
+            return (
+                <th key={index} className={colClassNames}>{player.name}{dropMark}</th>
+            );
+        });
         
         return (
             <thead>

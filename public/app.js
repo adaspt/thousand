@@ -125,7 +125,7 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     this.save();
                     this.render();
                 };
-                Game.prototype.next = function (scores) {
+                Game.prototype.next = function (scores, dropped) {
                     if (scores.every(function (value) { return value == null; })) {
                         return;
                     }
@@ -133,8 +133,12 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     var turn = new game_turn_1.GameTurn();
                     turn.scores = scores;
                     turn.totals = scores.map(function (value, index) { return value + currentScores[index]; });
+                    turn.dropped = dropped;
                     this.turns.push(turn);
                     this.current = new game_current_turn_1.GameCurrentTurn(this.players.length);
+                    if (dropped != null) {
+                        this.players[dropped].canDrop = false;
+                    }
                     this.save();
                     this.render();
                 };
@@ -145,6 +149,9 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     var lastTurn = this.turns.pop();
                     var current = new game_current_turn_1.GameCurrentTurn(this.players.length);
                     current.dropped = lastTurn.dropped;
+                    if (lastTurn.dropped != null) {
+                        this.players[lastTurn.dropped].canDrop = true;
+                    }
                     for (var i = 0; i < this.players.length; i++) {
                         current.scores[i] = lastTurn.scores[i];
                     }
@@ -324,12 +331,25 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                         scores[index] = e.target.value;
                         _this.setState({ scores: scores });
                     };
+                    this.handleDropped = function (e, index) {
+                        var scores = [];
+                        var dropped = e.target.checked ? index : null;
+                        for (var i = 0; i < _this.props.players.length; i++) {
+                            if (dropped === null || dropped === i) {
+                                scores.push(null);
+                            }
+                            else {
+                                scores.push(String(120 / (_this.props.players.length - 1)));
+                            }
+                        }
+                        _this.setState({ scores: scores, dropped: dropped });
+                    };
                     this.handleSubmit = function (e) {
                         e.preventDefault();
                         var scores = _this.state.scores
                             .map(function (value) { return parseInt(value, 10); })
                             .map(function (value) { return isNaN(value) ? null : value; });
-                        main_3.game.next(scores);
+                        main_3.game.next(scores, _this.state.dropped);
                     };
                     this.handleUndo = function (e) {
                         main_3.game.undo();
@@ -338,7 +358,8 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                         main_3.game.clear();
                     };
                     this.state = {
-                        scores: []
+                        scores: [],
+                        dropped: this.props.dropped
                     };
                     for (var _i = 0, _a = this.props.scores; _i < _a.length; _i++) {
                         var score = _a[_i];
@@ -346,12 +367,13 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                     }
                 }
                 CurrentTurn.prototype.componentWillReceiveProps = function (nextProps) {
+                    var dropped = nextProps.dropped || null;
                     var scores = [];
                     for (var _i = 0, _a = nextProps.scores; _i < _a.length; _i++) {
                         var score = _a[_i];
                         scores.push(String(score));
                     }
-                    this.setState({ scores: scores });
+                    this.setState({ scores: scores, dropped: dropped });
                 };
                 CurrentTurn.prototype.render = function () {
                     var scores = this.renderScores();
@@ -363,7 +385,9 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                     var players = this.props.players;
                     var inputs = this.state.scores.map(function (score, index) {
                         var autofocus = index === 0;
-                        return (React.createElement("div", {key: index, className: colClassNames}, React.createElement("div", {className: "form-group"}, React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "0", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }}))));
+                        var checked = _this.state.dropped === index;
+                        var disabled = !_this.props.players[index].canDrop;
+                        return (React.createElement("div", {key: index, className: colClassNames}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "input-group"}, React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "0", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }}), React.createElement("span", {className: "input-group-addon"}, React.createElement("input", {type: "checkbox", checked: checked, disabled: disabled, onChange: function (e) { return _this.handleDropped(e, index); }}))))));
                     });
                     return (React.createElement("div", {className: "row"}, inputs));
                 };
@@ -397,12 +421,15 @@ System.register("components/turn-list", ['react', "components/turn", "components
                 TurnList.prototype.render = function () {
                     var players = this.renderPlayers();
                     var turns = this.renderTurns();
-                    return (React.createElement("table", {className: "table"}, players, turns, React.createElement(current_turn_1.CurrentTurn, {players: this.props.players, scores: this.props.current.scores})));
+                    return (React.createElement("table", {className: "table"}, players, turns, React.createElement(current_turn_1.CurrentTurn, {players: this.props.players, scores: this.props.current.scores, dropped: this.props.current.dropped})));
                 };
                 TurnList.prototype.renderPlayers = function () {
                     var colClassNames = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
                     colClassNames += ' text-center';
-                    var players = this.props.players.map(function (player, index) { return (React.createElement("th", {key: index, className: colClassNames}, player.name)); });
+                    var players = this.props.players.map(function (player, index) {
+                        var dropMark = player.canDrop ? '' : ' *';
+                        return (React.createElement("th", {key: index, className: colClassNames}, player.name, dropMark));
+                    });
                     return (React.createElement("thead", null, React.createElement("tr", null, players)));
                 };
                 TurnList.prototype.renderTurns = function () {
