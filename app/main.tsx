@@ -6,9 +6,9 @@ import {App} from './components/app';
 import {Game} from './model/game';
 
 function render() {
-    ReactDOM.render(<App model={model} />, document.getElementById('app'));
+    ReactDOM.render(<App game={game} />, document.getElementById('app'));
 }
 
-export let model = new Game(render);
+export let game = new Game(render);
 
 render();

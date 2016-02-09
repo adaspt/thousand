@@ -3,22 +3,17 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-System.register("model/game-current-turn", [], function(exports_1) {
+System.register("model/game-state", [], function(exports_1) {
     "use strict";
-    var GameCurrentTurn;
+    var GameState;
     return {
         setters:[],
         execute: function() {
-            GameCurrentTurn = (function () {
-                function GameCurrentTurn(playerCount) {
-                    this.scores = [];
-                    for (var i = 0; i < playerCount; i++) {
-                        this.scores.push(null);
-                    }
-                }
-                return GameCurrentTurn;
-            }());
-            exports_1("GameCurrentTurn", GameCurrentTurn);
+            (function (GameState) {
+                GameState[GameState["Players"] = 1] = "Players";
+                GameState[GameState["Game"] = 2] = "Game";
+            })(GameState || (GameState = {}));
+            exports_1("GameState", GameState);
         }
     }
 });
@@ -38,21 +33,7 @@ System.register("model/game-player", [], function(exports_2) {
         }
     }
 });
-System.register("model/game-state", [], function(exports_3) {
-    "use strict";
-    var GameState;
-    return {
-        setters:[],
-        execute: function() {
-            (function (GameState) {
-                GameState[GameState["Players"] = 1] = "Players";
-                GameState[GameState["Game"] = 2] = "Game";
-            })(GameState || (GameState = {}));
-            exports_3("GameState", GameState);
-        }
-    }
-});
-System.register("model/game-turn", [], function(exports_4) {
+System.register("model/game-turn", [], function(exports_3) {
     "use strict";
     var GameTurn;
     return {
@@ -63,7 +44,26 @@ System.register("model/game-turn", [], function(exports_4) {
                 }
                 return GameTurn;
             }());
-            exports_4("GameTurn", GameTurn);
+            exports_3("GameTurn", GameTurn);
+        }
+    }
+});
+System.register("model/game-current-turn", [], function(exports_4) {
+    "use strict";
+    var GameCurrentTurn;
+    return {
+        setters:[],
+        execute: function() {
+            GameCurrentTurn = (function () {
+                function GameCurrentTurn(playerCount) {
+                    this.scores = [];
+                    for (var i = 0; i < playerCount; i++) {
+                        this.scores.push(null);
+                    }
+                }
+                return GameCurrentTurn;
+            }());
+            exports_4("GameCurrentTurn", GameCurrentTurn);
         }
     }
 });
@@ -154,7 +154,37 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
         }
     }
 });
-System.register("components/player", ['react', "main"], function(exports_6) {
+System.register("model", ["model/game", "model/game-state", "model/game-player", "model/game-turn", "model/game-current-turn"], function(exports_6) {
+    "use strict";
+    function exportStar_1(m) {
+        var exports = {};
+        for(var n in m) {
+            if (n !== "default") exports[n] = m[n];
+        }
+        exports_6(exports);
+    }
+    return {
+        setters:[
+            function (game_1_1) {
+                exportStar_1(game_1_1);
+            },
+            function (game_state_2_1) {
+                exportStar_1(game_state_2_1);
+            },
+            function (game_player_2_1) {
+                exportStar_1(game_player_2_1);
+            },
+            function (game_turn_2_1) {
+                exportStar_1(game_turn_2_1);
+            },
+            function (game_current_turn_2_1) {
+                exportStar_1(game_current_turn_2_1);
+            }],
+        execute: function() {
+        }
+    }
+});
+System.register("components/player", ['react', "main"], function(exports_7) {
     "use strict";
     var React, main_1;
     var Player;
@@ -173,7 +203,7 @@ System.register("components/player", ['react', "main"], function(exports_6) {
                     var _this = this;
                     _super.call(this, props);
                     this.handleNameChange = function (e) {
-                        main_1.model.setPlayer(_this.props.index, e.target.value);
+                        main_1.game.setPlayer(_this.props.index, e.target.value);
                     };
                 }
                 Player.prototype.render = function () {
@@ -185,11 +215,11 @@ System.register("components/player", ['react', "main"], function(exports_6) {
                 };
                 return Player;
             }(React.Component));
-            exports_6("Player", Player);
+            exports_7("Player", Player);
         }
     }
 });
-System.register("components/player-list", ['react', "main", "components/player"], function(exports_7) {
+System.register("components/player-list", ['react', "main", "components/player"], function(exports_8) {
     "use strict";
     var React, main_2, player_1;
     var PlayerList;
@@ -211,7 +241,7 @@ System.register("components/player-list", ['react', "main", "components/player"]
                     _super.call(this, props);
                     this.handleSubmit = function (e) {
                         e.preventDefault();
-                        main_2.model.play();
+                        main_2.game.play();
                     };
                 }
                 PlayerList.prototype.render = function () {
@@ -223,11 +253,11 @@ System.register("components/player-list", ['react', "main", "components/player"]
                 };
                 return PlayerList;
             }(React.Component));
-            exports_7("PlayerList", PlayerList);
+            exports_8("PlayerList", PlayerList);
         }
     }
 });
-System.register("components/turn", ['react'], function(exports_8) {
+System.register("components/turn", ['react'], function(exports_9) {
     "use strict";
     var React;
     var Turn;
@@ -248,11 +278,11 @@ System.register("components/turn", ['react'], function(exports_8) {
                 };
                 return Turn;
             }(React.Component));
-            exports_8("Turn", Turn);
+            exports_9("Turn", Turn);
         }
     }
 });
-System.register("components/current-turn", ['react', "main"], function(exports_9) {
+System.register("components/current-turn", ['react', "main"], function(exports_10) {
     "use strict";
     var React, main_3;
     var CurrentTurn;
@@ -280,13 +310,13 @@ System.register("components/current-turn", ['react', "main"], function(exports_9
                         var scores = _this.state.scores
                             .map(function (value) { return parseInt(value, 10); })
                             .map(function (value) { return isNaN(value) ? null : value; });
-                        main_3.model.next(scores);
+                        main_3.game.next(scores);
                     };
                     this.handleUndo = function (e) {
-                        main_3.model.undo();
+                        main_3.game.undo();
                     };
                     this.handleNewGame = function () {
-                        main_3.model.clear();
+                        main_3.game.clear();
                     };
                     this.state = {
                         scores: []
@@ -320,11 +350,11 @@ System.register("components/current-turn", ['react', "main"], function(exports_9
                 };
                 return CurrentTurn;
             }(React.Component));
-            exports_9("CurrentTurn", CurrentTurn);
+            exports_10("CurrentTurn", CurrentTurn);
         }
     }
 });
-System.register("components/turn-list", ['react', "components/turn", "components/current-turn"], function(exports_10) {
+System.register("components/turn-list", ['react', "components/turn", "components/current-turn"], function(exports_11) {
     "use strict";
     var React, turn_1, current_turn_1;
     var TurnList;
@@ -362,11 +392,11 @@ System.register("components/turn-list", ['react', "components/turn", "components
                 };
                 return TurnList;
             }(React.Component));
-            exports_10("TurnList", TurnList);
+            exports_11("TurnList", TurnList);
         }
     }
 });
-System.register("components/game", ['react', "components/turn-list"], function(exports_11) {
+System.register("components/game", ['react', "components/turn-list"], function(exports_12) {
     "use strict";
     var React, turn_list_1;
     var Game;
@@ -392,27 +422,27 @@ System.register("components/game", ['react', "components/turn-list"], function(e
                 };
                 return Game;
             }(React.Component));
-            exports_11("Game", Game);
+            exports_12("Game", Game);
         }
     }
 });
-System.register("components/app", ['react', "model/game-state", "components/player-list", "components/game"], function(exports_12) {
+System.register("components/app", ['react', "model", "components/player-list", "components/game"], function(exports_13) {
     "use strict";
-    var React, game_state_2, player_list_1, game_1;
+    var React, model, player_list_1, game_2;
     var App;
     return {
         setters:[
             function (React_7) {
                 React = React_7;
             },
-            function (game_state_2_1) {
-                game_state_2 = game_state_2_1;
+            function (model_1) {
+                model = model_1;
             },
             function (player_list_1_1) {
                 player_list_1 = player_list_1_1;
             },
-            function (game_1_1) {
-                game_1 = game_1_1;
+            function (game_2_1) {
+                game_2 = game_2_1;
             }],
         execute: function() {
             App = (function (_super) {
@@ -421,27 +451,27 @@ System.register("components/app", ['react', "model/game-state", "components/play
                     _super.apply(this, arguments);
                 }
                 App.prototype.render = function () {
-                    var players = this.props.model.players;
-                    var turns = this.props.model.turns;
-                    var current = this.props.model.current;
-                    if (this.props.model.state === game_state_2.GameState.Players) {
+                    var players = this.props.game.players;
+                    var turns = this.props.game.turns;
+                    var current = this.props.game.current;
+                    if (this.props.game.state === model.GameState.Players) {
                         return React.createElement(player_list_1.PlayerList, {players: players});
                     }
-                    return (React.createElement(game_1.Game, {players: players, turns: turns, current: current}));
+                    return (React.createElement(game_2.Game, {players: players, turns: turns, current: current}));
                 };
                 return App;
             }(React.Component));
-            exports_12("App", App);
+            exports_13("App", App);
         }
     }
 });
 /// <reference path="../typings/main.d.ts" />
-System.register("main", ['react', 'react-dom', "components/app", "model/game"], function(exports_13) {
+System.register("main", ['react', 'react-dom', "components/app", "model/game"], function(exports_14) {
     "use strict";
-    var React, ReactDOM, app_1, game_2;
-    var model;
+    var React, ReactDOM, app_1, game_3;
+    var game;
     function render() {
-        ReactDOM.render(React.createElement(app_1.App, {model: model}), document.getElementById('app'));
+        ReactDOM.render(React.createElement(app_1.App, {game: game}), document.getElementById('app'));
     }
     return {
         setters:[
@@ -454,11 +484,11 @@ System.register("main", ['react', 'react-dom', "components/app", "model/game"], 
             function (app_1_1) {
                 app_1 = app_1_1;
             },
-            function (game_2_1) {
-                game_2 = game_2_1;
+            function (game_3_1) {
+                game_3 = game_3_1;
             }],
         execute: function() {
-            exports_13("model", model = new game_2.Game(render));
+            exports_14("game", game = new game_3.Game(render));
             render();
         }
     }

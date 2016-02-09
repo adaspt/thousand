@@ -1,12 +1,11 @@
 import * as React from 'react';
-import {GamePlayer} from '../model/game-player'
-import {GameState} from '../model/game-state'
-import {model} from '../main';
+import * as model from '../model'
+import {game} from '../main';
 
 import {Player} from './player';
 
 interface IPlayerListProps {
-    players: GamePlayer[];
+    players: model.GamePlayer[];
 }
 
 interface IPlayerListState {
@@ -19,7 +18,7 @@ export class PlayerList extends React.Component<IPlayerListProps, IPlayerListSta
     
     handleSubmit = (e) => {
         e.preventDefault();
-        model.play();
+        game.play();
     }
     
     render() {

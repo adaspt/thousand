@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {GamePlayer} from '../model/game-player';
-import {model} from '../main';
+import * as model from '../model'
+import {game} from '../main';
 
 interface ICurrentTurnProps {
-    players: GamePlayer[];
+    players: model.GamePlayer[];
     scores: number[];
 }
 
@@ -45,15 +45,15 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         let scores = this.state.scores
             .map((value) => parseInt(value, 10))
             .map((value) => isNaN(value) ? null : value); 
-        model.next(scores);
+        game.next(scores);
     }
     
     handleUndo = (e) => {
-        model.undo();
+        game.undo();
     }
     
     handleNewGame = () => {
-        model.clear();
+        game.clear();
     }
     
     render() {

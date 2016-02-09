@@ -1,10 +1,10 @@
 import * as React from 'react';
-import {GamePlayer} from '../model/game-player'
-import {model} from '../main';
+import * as model from '../model'
+import {game} from '../main';
 
 interface IPlayerProps {
     index: number;
-    player: GamePlayer;
+    player: model.GamePlayer;
     placeholder: string;
 }
 
@@ -17,7 +17,7 @@ export class Player extends React.Component<IPlayerProps, IPlayerState> {
     }
     
     handleNameChange = (e) => {
-        model.setPlayer(this.props.index, e.target.value);
+        game.setPlayer(this.props.index, e.target.value);
     }
     
     render() {

@@ -1,15 +1,13 @@
 import * as React from 'react';
-import {GamePlayer} from '../model/game-player';
-import {GameTurn} from '../model/game-turn';
-import {GameCurrentTurn} from '../model/game-current-turn';
+import * as model from '../model'
 
 import {Turn} from './turn';
 import {CurrentTurn} from './current-turn';
 
 interface ITurnListProps {
-    players: GamePlayer[];
-    turns: GameTurn[];
-    current: GameCurrentTurn;
+    players: model.GamePlayer[];
+    turns: model.GameTurn[];
+    current: model.GameCurrentTurn;
 }
 
 interface ITurnListState {
