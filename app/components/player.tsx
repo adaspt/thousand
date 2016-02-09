@@ -23,11 +23,12 @@ export class Player extends React.Component<IPlayerProps, IPlayerState> {
     render() {
         let placeholder = this.props.placeholder;
         let name = this.props.player != null ? this.props.player.name : '';
+        let required = this.props.index < 3;
         let autofocus = this.props.index === 0;
         
         return (
             <div className="form-group">
-                <input className="form-control" placeholder={placeholder} value={name} autoFocus={autofocus} onChange={this.handleNameChange} />
+                <input className="form-control" placeholder={placeholder} value={name} required={required} autoFocus={autofocus} onChange={this.handleNameChange} />
             </div>);
     }
 }

@@ -1,26 +1,27 @@
 import * as React from 'react';
-import {Game} from '../model/game'
+import {Game as GameModel} from '../model/game'
 import {GameState} from '../model/game-state'
 
 import {PlayerList} from './player-list';
+import {Game} from './game';
 
 interface IAppProps {
-    model: Game;
+    model: GameModel;
 }
 
 interface IAppState {
 }
 
 export class App extends React.Component<IAppProps, IAppState> {
-    constructor(props) {
-        super(props);
-    }
-    
     render() {
+        let players = this.props.model.players;
+        let turns = this.props.model.turns;
+        let current = this.props.model.current;
+        
         if (this.props.model.state === GameState.Players) {
-            return <PlayerList players={this.props.model.players} />;
+            return <PlayerList players={players} />;
         }
         
-        return (<h1>Thousand <small>Play</small></h1>);
+        return (<Game players={players} turns={turns} current={current} />);
     }
 }

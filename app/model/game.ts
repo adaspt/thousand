@@ -1,6 +1,7 @@
 import {GameState} from './game-state';
 import {GamePlayer} from './game-player';
 import {GameTurn} from './game-turn';
+import {GameCurrentTurn} from './game-current-turn';
 
 export class Game {
     constructor(
@@ -10,7 +11,7 @@ export class Game {
     state = GameState.Players;
     players: GamePlayer[] = [];
     turns: GameTurn[] = [];
-    current = new GameTurn();
+    current: GameCurrentTurn;
     
     setPlayer(index: number, name: string) {
         let players = [
@@ -39,6 +40,40 @@ export class Game {
     
     play() {
         this.state = GameState.Game;
+        this.current = new GameCurrentTurn(this.players.length);
+        
+        this.render();
+    }
+    
+    next(scores: number[]) {
+        if (scores.every((value) => value == null)) {
+            return;
+        }
+        
+        let currentScores: number[] = this.turns.length > 0 ? this.turns[this.turns.length - 1].totals : [0, 0, 0, 0];
+        let turn = new GameTurn();
+        turn.scores = scores;
+        turn.totals = scores.map((value, index) => value + currentScores[index]);
+        this.turns.push(turn);
+        this.current = new GameCurrentTurn(this.players.length);
+        
+        this.render();
+    }
+    
+    undo() {
+        if (this.turns.length === 0) {
+            return;
+        }
+        
+        let lastTurn = this.turns.pop();
+        let current = new GameCurrentTurn(this.players.length);
+        current.dropped = lastTurn.dropped;
+        for (let i = 0; i < this.players.length; i++) {
+            current.scores[i] = lastTurn.scores[i];
+        }
+        
+        this.current = current;
+        
         this.render();
     }
 }
