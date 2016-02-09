@@ -38,6 +38,14 @@ export class Game {
         this.render();
     }
     
+    clear() {
+        this.state = GameState.Players;
+        this.turns = [];
+        this.current = null;
+        
+        this.render();
+    }
+    
     play() {
         this.state = GameState.Game;
         this.current = new GameCurrentTurn(this.players.length);

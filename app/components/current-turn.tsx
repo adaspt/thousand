@@ -52,6 +52,10 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         model.undo();
     }
     
+    handleNewGame = () => {
+        model.clear();
+    }
+    
     render() {
         let scores = this.renderScores();
         
@@ -65,6 +69,8 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
                                 <button type="submit" className="btn btn-primary">Next</button>
                                 { ' ' }
                                 <button type="button" className="btn btn-default" onClick={this.handleUndo}>Undo</button>
+                                { ' ' }
+                                <button type="button" className="btn btn-success" onClick={this.handleNewGame}>New game</button>
                             </div>
                         </form>
                     </td>
