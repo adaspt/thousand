@@ -112,6 +112,12 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     this.players = players;
                     this.render();
                 };
+                Game.prototype.clear = function () {
+                    this.state = game_state_1.GameState.Players;
+                    this.turns = [];
+                    this.current = null;
+                    this.render();
+                };
                 Game.prototype.play = function () {
                     this.state = game_state_1.GameState.Game;
                     this.current = new game_current_turn_1.GameCurrentTurn(this.players.length);
@@ -279,6 +285,9 @@ System.register("components/current-turn", ['react', "main"], function(exports_9
                     this.handleUndo = function (e) {
                         main_3.model.undo();
                     };
+                    this.handleNewGame = function () {
+                        main_3.model.clear();
+                    };
                     this.state = {
                         scores: []
                     };
@@ -297,7 +306,7 @@ System.register("components/current-turn", ['react', "main"], function(exports_9
                 };
                 CurrentTurn.prototype.render = function () {
                     var scores = this.renderScores();
-                    return (React.createElement("tfoot", null, React.createElement("tr", null, React.createElement("td", {colSpan: 4}, React.createElement("form", {onSubmit: this.handleSubmit}, scores, React.createElement("div", {className: "form-group"}, React.createElement("button", {type: "submit", className: "btn btn-primary"}, "Next"), ' ', React.createElement("button", {type: "button", className: "btn btn-default", onClick: this.handleUndo}, "Undo")))))));
+                    return (React.createElement("tfoot", null, React.createElement("tr", null, React.createElement("td", {colSpan: 4}, React.createElement("form", {onSubmit: this.handleSubmit}, scores, React.createElement("div", {className: "form-group"}, React.createElement("button", {type: "submit", className: "btn btn-primary"}, "Next"), ' ', React.createElement("button", {type: "button", className: "btn btn-default", onClick: this.handleUndo}, "Undo"), ' ', React.createElement("button", {type: "button", className: "btn btn-success", onClick: this.handleNewGame}, "New game")))))));
                 };
                 CurrentTurn.prototype.renderScores = function () {
                     var _this = this;
