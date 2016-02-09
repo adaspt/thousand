@@ -43,6 +43,7 @@ export class Game {
         this.turns = [];
         this.current = null;
         
+        this.save();
         this.render();
     }
     
@@ -50,6 +51,7 @@ export class Game {
         this.state = GameState.Game;
         this.current = new GameCurrentTurn(this.players.length);
         
+        this.save();
         this.render();
     }
     
@@ -65,6 +67,7 @@ export class Game {
         this.turns.push(turn);
         this.current = new GameCurrentTurn(this.players.length);
         
+        this.save();
         this.render();
     }
     
@@ -82,6 +85,25 @@ export class Game {
         
         this.current = current;
         
+        this.save();
         this.render();
+    }
+    
+    private save() {
+        localStorage.setItem('game', JSON.stringify(this));
+    }
+    
+    static load(render: () => void) {
+        let game = new Game(render);
+        let data = localStorage.getItem('game');
+        if (data) {
+            let state = JSON.parse(data);
+            game.state = state.state;
+            game.players = state.players;
+            game.turns = state.turns;
+            game.current = state.current;
+        }
+        
+        return game;
     }
 }

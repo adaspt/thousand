@@ -9,6 +9,6 @@ function render() {
     ReactDOM.render(<App game={game} />, document.getElementById('app'));
 }
 
-export let game = new Game(render);
+export let game = Game.load(render);
 
 render();

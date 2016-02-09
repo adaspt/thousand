@@ -116,11 +116,13 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     this.state = game_state_1.GameState.Players;
                     this.turns = [];
                     this.current = null;
+                    this.save();
                     this.render();
                 };
                 Game.prototype.play = function () {
                     this.state = game_state_1.GameState.Game;
                     this.current = new game_current_turn_1.GameCurrentTurn(this.players.length);
+                    this.save();
                     this.render();
                 };
                 Game.prototype.next = function (scores) {
@@ -133,6 +135,7 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                     turn.totals = scores.map(function (value, index) { return value + currentScores[index]; });
                     this.turns.push(turn);
                     this.current = new game_current_turn_1.GameCurrentTurn(this.players.length);
+                    this.save();
                     this.render();
                 };
                 Game.prototype.undo = function () {
@@ -146,7 +149,23 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                         current.scores[i] = lastTurn.scores[i];
                     }
                     this.current = current;
+                    this.save();
                     this.render();
+                };
+                Game.prototype.save = function () {
+                    localStorage.setItem('game', JSON.stringify(this));
+                };
+                Game.load = function (render) {
+                    var game = new Game(render);
+                    var data = localStorage.getItem('game');
+                    if (data) {
+                        var state = JSON.parse(data);
+                        game.state = state.state;
+                        game.players = state.players;
+                        game.turns = state.turns;
+                        game.current = state.current;
+                    }
+                    return game;
                 };
                 return Game;
             }());
@@ -488,7 +507,7 @@ System.register("main", ['react', 'react-dom', "components/app", "model/game"], 
                 game_3 = game_3_1;
             }],
         execute: function() {
-            exports_14("game", game = new game_3.Game(render));
+            exports_14("game", game = game_3.Game.load(render));
             render();
         }
     }
