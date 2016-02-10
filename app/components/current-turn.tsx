@@ -106,7 +106,7 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
             }
             
             return (
-                <div key={index} className={colClassNames}>
+                <div key={index} className={colClassNames} style={{ paddingLeft: 7, paddingRight: 7 }}>
                     <div className={cssGroupClassNames}>
                         <div className="input-group">
                             <span className="input-group-addon">
