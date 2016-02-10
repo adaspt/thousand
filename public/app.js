@@ -111,6 +111,7 @@ System.register("model/game", ["model/game-state", "model/game-player", "model/g
                         players.pop();
                     }
                     this.players = players;
+                    this.save();
                     this.render();
                 };
                 Game.prototype.clear = function () {
@@ -236,9 +237,9 @@ System.register("components/player", ['react', "main"], function(exports_7) {
         execute: function() {
             Player = (function (_super) {
                 __extends(Player, _super);
-                function Player(props) {
+                function Player() {
                     var _this = this;
-                    _super.call(this, props);
+                    _super.apply(this, arguments);
                     this.handleNameChange = function (e) {
                         main_1.game.setPlayer(_this.props.index, e.target.value);
                     };
@@ -365,9 +366,6 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                     this.handleUndo = function (e) {
                         main_3.game.undo();
                     };
-                    this.handleNewGame = function () {
-                        main_3.game.clear();
-                    };
                     this.state = {
                         scores: [],
                         dropped: this.props.dropped
@@ -388,7 +386,7 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                 };
                 CurrentTurn.prototype.render = function () {
                     var scores = this.renderScores();
-                    return (React.createElement("tfoot", null, React.createElement("tr", null, React.createElement("td", {colSpan: 4}, React.createElement("form", {onSubmit: this.handleSubmit}, scores, React.createElement("div", {className: "form-group"}, React.createElement("button", {type: "submit", className: "btn btn-primary"}, "Next"), ' ', React.createElement("button", {type: "button", className: "btn btn-default", onClick: this.handleUndo}, "Undo"), ' ', React.createElement("button", {type: "button", className: "btn btn-success", onClick: this.handleNewGame}, "New game")))))));
+                    return (React.createElement("tfoot", null, React.createElement("tr", null, React.createElement("td", {colSpan: 4}, React.createElement("form", {onSubmit: this.handleSubmit}, scores, React.createElement("div", {className: "form-group"}, React.createElement("button", {type: "submit", className: "btn btn-primary"}, "Next"), ' ', React.createElement("button", {type: "button", className: "btn btn-default", onClick: this.handleUndo}, "Undo")))))));
                 };
                 CurrentTurn.prototype.renderScores = function () {
                     var _this = this;
@@ -402,7 +400,7 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                         if (players[index].isRestricted) {
                             cssGroupClassNames += ' has-error';
                         }
-                        return (React.createElement("div", {key: index, className: colClassNames}, React.createElement("div", {className: cssGroupClassNames}, React.createElement("div", {className: "input-group"}, React.createElement("span", {className: "input-group-addon"}, React.createElement("input", {type: "checkbox", checked: checked, disabled: disabled, onChange: function (e) { return _this.handleDropped(e, index); }})), React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "0", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }})))));
+                        return (React.createElement("div", {key: index, className: colClassNames}, React.createElement("div", {className: cssGroupClassNames}, React.createElement("div", {className: "input-group"}, React.createElement("span", {className: "input-group-addon"}, React.createElement("input", {type: "checkbox", checked: checked, disabled: disabled, onChange: function (e) { return _this.handleDropped(e, index); }})), React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "-1000", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }})))));
                     });
                     return (React.createElement("div", {className: "row"}, inputs));
                 };
@@ -457,14 +455,17 @@ System.register("components/turn-list", ['react', "components/turn", "components
         }
     }
 });
-System.register("components/game", ['react', "components/turn-list"], function(exports_12) {
+System.register("components/game", ['react', "main", "components/turn-list"], function(exports_12) {
     "use strict";
-    var React, turn_list_1;
+    var React, main_4, turn_list_1;
     var Game;
     return {
         setters:[
             function (React_6) {
                 React = React_6;
+            },
+            function (main_4_1) {
+                main_4 = main_4_1;
             },
             function (turn_list_1_1) {
                 turn_list_1 = turn_list_1_1;
@@ -474,12 +475,15 @@ System.register("components/game", ['react', "components/turn-list"], function(e
                 __extends(Game, _super);
                 function Game() {
                     _super.apply(this, arguments);
+                    this.handleNewGame = function () {
+                        main_4.game.clear();
+                    };
                 }
                 Game.prototype.render = function () {
                     var players = this.props.players;
                     var turns = this.props.turns;
                     var current = this.props.current;
-                    return (React.createElement("div", null, React.createElement("h1", null, "Thousand ", React.createElement("small", null, "Play")), React.createElement(turn_list_1.TurnList, {players: players, turns: turns, current: current})));
+                    return (React.createElement("div", null, React.createElement("h1", null, "Thousand ", React.createElement("small", null, "Play"), React.createElement("button", {type: "button", className: "btn btn-success pull-right", onClick: this.handleNewGame}, "New game")), React.createElement(turn_list_1.TurnList, {players: players, turns: turns, current: current})));
                 };
                 return Game;
             }(React.Component));

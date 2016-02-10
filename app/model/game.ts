@@ -35,6 +35,7 @@ export class Game {
         
         this.players = players;
         
+        this.save();
         this.render();
     }
     

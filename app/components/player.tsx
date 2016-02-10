@@ -12,10 +12,6 @@ interface IPlayerState {
 }
 
 export class Player extends React.Component<IPlayerProps, IPlayerState> {
-    constructor(props) {
-        super(props);
-    }
-    
     handleNameChange = (e) => {
         game.setPlayer(this.props.index, e.target.value);
     }
@@ -29,6 +25,7 @@ export class Player extends React.Component<IPlayerProps, IPlayerState> {
         return (
             <div className="form-group">
                 <input className="form-control" placeholder={placeholder} value={name} required={required} autoFocus={autofocus} onChange={this.handleNameChange} />
-            </div>);
+            </div>
+        );
     }
 }

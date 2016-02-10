@@ -71,10 +71,6 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         game.undo();
     }
     
-    handleNewGame = () => {
-        game.clear();
-    }
-    
     render() {
         let scores = this.renderScores();
         
@@ -88,8 +84,6 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
                                 <button type="submit" className="btn btn-primary">Next</button>
                                 { ' ' }
                                 <button type="button" className="btn btn-default" onClick={this.handleUndo}>Undo</button>
-                                { ' ' }
-                                <button type="button" className="btn btn-success" onClick={this.handleNewGame}>New game</button>
                             </div>
                         </form>
                     </td>
@@ -119,7 +113,7 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
                                 <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => this.handleDropped(e, index)} />
                             </span>
                             <input type="number" className="form-control text-right" placeholder={players[index].name}
-                                min="0" max="1000" step="10" value={score} autoFocus={autofocus}
+                                min="-1000" max="1000" step="10" value={score} autoFocus={autofocus}
                                 onChange={(e) => this.handleScoreChange(e, index)} />
                         </div>
                     </div>
