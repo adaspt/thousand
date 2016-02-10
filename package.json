@@ -6,6 +6,7 @@
   "scripts": {
     "postinstall": "npm run build",
     "build": "",
+    "deploy": "git subtree push --prefix public origin gh-pages",
     "tsc": "tsc -w --pretty",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
