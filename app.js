@@ -376,7 +376,7 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                     }
                 }
                 CurrentTurn.prototype.componentWillReceiveProps = function (nextProps) {
-                    var dropped = nextProps.dropped || null;
+                    var dropped = nextProps.dropped;
                     var scores = [];
                     for (var _i = 0, _a = nextProps.scores; _i < _a.length; _i++) {
                         var score = _a[_i];
@@ -386,23 +386,29 @@ System.register("components/current-turn", ['react', "main"], function(exports_1
                 };
                 CurrentTurn.prototype.render = function () {
                     var scores = this.renderScores();
-                    return (React.createElement("tfoot", null, React.createElement("tr", null, React.createElement("td", {colSpan: 4}, React.createElement("form", {onSubmit: this.handleSubmit}, scores, React.createElement("div", {className: "form-group"}, React.createElement("button", {type: "submit", className: "btn btn-primary"}, "Next"), ' ', React.createElement("button", {type: "button", className: "btn btn-default", onClick: this.handleUndo}, "Undo")))))));
+                    var drops = this.renderDrops();
+                    return (React.createElement("tfoot", null, React.createElement("tr", null, React.createElement("td", {colSpan: 4}, React.createElement("form", {onSubmit: this.handleSubmit}, scores, drops, React.createElement("div", {className: "form-group"}, React.createElement("button", {type: "submit", className: "btn btn-primary"}, "Next"), ' ', React.createElement("button", {type: "button", className: "btn btn-default", onClick: this.handleUndo}, "Undo")))))));
                 };
                 CurrentTurn.prototype.renderScores = function () {
                     var _this = this;
-                    var colClassNames = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
+                    var colClassName = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
                     var players = this.props.players;
                     var inputs = this.state.scores.map(function (score, index) {
                         var autofocus = index === 0;
-                        var checked = _this.state.dropped === index;
-                        var disabled = !players[index].canDrop;
-                        var cssGroupClassNames = 'form-group';
-                        if (players[index].isRestricted) {
-                            cssGroupClassNames += ' has-error';
-                        }
-                        return (React.createElement("div", {key: index, className: colClassNames, style: { paddingLeft: 7, paddingRight: 7 }}, React.createElement("div", {className: cssGroupClassNames}, React.createElement("div", {className: "input-group"}, React.createElement("span", {className: "input-group-addon"}, React.createElement("input", {type: "checkbox", checked: checked, disabled: disabled, onChange: function (e) { return _this.handleDropped(e, index); }})), React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "-1000", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }})))));
+                        var cssGroupClassNames = players[index].isRestricted ? 'has-error' : null;
+                        return (React.createElement("div", {key: index, className: colClassName}, React.createElement("div", {className: cssGroupClassNames}, React.createElement("input", {type: "number", className: "form-control text-right", placeholder: players[index].name, min: "-1000", max: "1000", step: "10", value: score, autoFocus: autofocus, onChange: function (e) { return _this.handleScoreChange(e, index); }}))));
                     });
                     return (React.createElement("div", {className: "row"}, inputs));
+                };
+                CurrentTurn.prototype.renderDrops = function () {
+                    var _this = this;
+                    var colClassName = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
+                    var drops = this.props.players.map(function (player, index) {
+                        var checked = _this.state.dropped === index;
+                        var disabled = !player.canDrop;
+                        return (React.createElement("div", {key: index, className: colClassName}, React.createElement("div", {className: "checkbox"}, React.createElement("label", null, React.createElement("input", {type: "checkbox", checked: checked, disabled: disabled, onChange: function (e) { return _this.handleDropped(e, index); }}), " Drop"))));
+                    });
+                    return (React.createElement("div", {className: "row"}, drops));
                 };
                 return CurrentTurn;
             }(React.Component));
