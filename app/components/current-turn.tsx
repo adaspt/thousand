@@ -28,7 +28,7 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
     }
     
     componentWillReceiveProps(nextProps) {
-        let dropped: number = nextProps.dropped || null;
+        let dropped: number = nextProps.dropped;
         let scores: string[] = [];
         for (let score of nextProps.scores) {
             scores.push(String(score));
@@ -73,6 +73,7 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
     
     render() {
         let scores = this.renderScores();
+        let drops = this.renderDrops();
         
         return (
             <tfoot>
@@ -80,6 +81,7 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
                     <td colSpan={4}>
                         <form onSubmit={this.handleSubmit}>
                             {scores}
+                            {drops}
                             <div className="form-group">
                                 <button type="submit" className="btn btn-primary">Next</button>
                                 { ' ' }
@@ -93,29 +95,19 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
     }
     
     private renderScores() {
-        let colClassNames = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
+        let colClassName = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
         let players = this.props.players;
         
         let inputs = this.state.scores.map((score, index) => {
             let autofocus = index === 0;
-            let checked = this.state.dropped === index;
-            let disabled = !players[index].canDrop;
-            let cssGroupClassNames = 'form-group';
-            if (players[index].isRestricted) {
-                cssGroupClassNames += ' has-error';
-            }
+            let cssGroupClassNames = players[index].isRestricted ? 'has-error' : null;
             
             return (
-                <div key={index} className={colClassNames} style={{ paddingLeft: 7, paddingRight: 7 }}>
+                <div key={index} className={colClassName}>
                     <div className={cssGroupClassNames}>
-                        <div className="input-group">
-                            <span className="input-group-addon">
-                                <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => this.handleDropped(e, index)} />
-                            </span>
-                            <input type="number" className="form-control text-right" placeholder={players[index].name}
-                                min="-1000" max="1000" step="10" value={score} autoFocus={autofocus}
-                                onChange={(e) => this.handleScoreChange(e, index)} />
-                        </div>
+                        <input type="number" className="form-control text-right" placeholder={players[index].name}
+                            min="-1000" max="1000" step="10" value={score} autoFocus={autofocus}
+                            onChange={(e) => this.handleScoreChange(e, index)} />
                     </div>
                 </div>
             );
@@ -124,6 +116,30 @@ export class CurrentTurn extends React.Component<ICurrentTurnProps, ICurrentTurn
         return (
             <div className="row">
                 {inputs}
+            </div>
+        );
+    }
+    
+    private renderDrops() {
+        let colClassName = this.props.players.length === 3 ? 'col-xs-4' : 'col-xs-3';
+
+        let drops = this.props.players.map((player, index) => {
+            let checked = this.state.dropped === index;
+            let disabled = !player.canDrop;
+            return (
+                <div key={index} className={colClassName}>
+                    <div className="checkbox">
+                        <label>
+                            <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => this.handleDropped(e, index)} /> Drop
+                        </label>
+                    </div>
+                </div>
+            );
+        });
+        
+        return (
+            <div className="row">
+                {drops}
             </div>
         );
     }
